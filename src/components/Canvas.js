@@ -5,7 +5,11 @@ class Canvas extends Component {
         super();
     
         this.state = {
-            isDrawing: false
+            isDrawing: false,
+            startX: 0,
+            startY: 0,
+            endX: 0,
+            endY: 0
         }
 
         this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -13,26 +17,47 @@ class Canvas extends Component {
         this.handleMouseUp = this.handleMouseUp.bind(this);
     }
     handleMouseUp() {
+        this.clearCanvas();
+        this.makeLine(this.ctx);
         this.setState({
-            isDrawing: false
+            isDrawing: false,
+            startX: 0,
+            startY: 0,
+            endX: 0,
+            endY: 0
         });
     }
     handleMouseDown(e) {
+        this.clearCanvas();
         this.setState({
-            isDrawing: true
+            isDrawing: true,
+            startX: e.clientX - this.canvas.left,
+            startY: e.clientY - this.canvas.top
         });
         this.ctx.lineWidth = 6;
         this.ctx.lineJoin = this.ctx.lineCap = 'square';
         this.ctx.strokeStyle = 'white';
-        this.ctx.moveTo(e.clientX - this.canvas.left, e.clientY - this.canvas.top);
     }
     handleMouseMove(e) {
         if (this.state.isDrawing) {
-            this.ctx.lineTo(e.clientX - this.canvas.left, e.clientY - this.canvas.top);
-            this.ctx.stroke();
+            this.setState({
+                endX: e.clientX - this.canvas.left,
+                endY: e.clientY - this.canvas.top
+            });
+            this.clearCanvas();
+            this.makeLine(this.ctx);
         }
     }
-
+    makeLine(context) {
+        context.beginPath();
+        context.moveTo(this.state.startX, this.state.startY);
+        context.lineTo(this.state.endX, this.state.endY);
+        context.stroke();
+    }
+    clearCanvas() {
+        this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
+        this.ctx.beginPath();
+    }
     componentDidMount() {
         this.getContext();
         console.log(this.ctx);
