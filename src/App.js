@@ -1,43 +1,105 @@
 import React, { Component } from 'react';
-import Konva from 'konva';
-import {Layer, Rect, Stage, Group} from 'react-konva';
-//import Map from './components/Map.js';
-import logo from './logo.svg';
+import Immutable from 'immutable';
+import map from './map.jpg';
 import './App.css';
 
-class MyRect extends Component {
-  constructor(...args) {
-        super(...args);
+class Canvas extends Component {
+    constructor() {
+        super();
+
         this.state = {
-            color: 'green'
+            lines: new Immutable.List(),
+            isDrawing: false
         };
-        this.handleClick = this.handleClick.bind(this);
+
+        this.handleMouseDown = this.handleMouseDown.bind(this);
+        this.handleMouseMove = this.handleMouseMove.bind(this);
+        this.handleMouseUp = this.handleMouseUp.bind(this);
     }
-    handleClick() {
-        this.setState({
-            color: Konva.Util.getRandomColor()
+
+    componentDidMount() {
+        document.addEventListener('mouseup', this.handleMouseUp);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('mouseup', this.handleMouseUp)
+    }
+
+    handleMouseDown(mouseEvent) {
+        if (mouseEvent.button != 0) {
+            return;
+        }
+
+        const point = this.relativeCoordinatesForEvent(mouseEvent);
+
+        this.setState(prevState => ({
+            lines: prevState.lines.push(new Immutable.List([point])),
+            isDrawing: true
+        }));
+    }
+    handleMouseUp() {
+        this.setState({ isDrawing: false });
+    }
+    handleMouseMove(mouseEvent) {
+        if (!this.state.isDrawing) {
+            return;
+        }
+
+        const point = this.relativeCoordinatesForEvent(mouseEvent);
+        
+        this.setState(prevState =>  ({
+            lines: prevState.lines.updateIn([prevState.lines.size - 1], line => line.push(point))
+        }));    
+    }
+
+    relativeCoordinatesForEvent(mouseEvent) {
+        const boundingRect = this.refs.drawArea.getBoundingClientRect();
+        return new Immutable.Map({
+            x: mouseEvent.clientX - boundingRect.left,
+            y: mouseEvent.clientY - boundingRect.top
         });
     }
+
     render() {
         return (
-            <Rect
-                x={10} y={10} width={50} height={50}
-                fill={this.state.color}
-                shadowBlur={10}
-                onClick={this.handleClick}
-            />
+            <div
+                className="drawArea"
+                ref="drawArea"
+                onMouseDown={this.handleMouseDown}
+                onMouseMove={this.handleMouseMove}
+            >
+                <Drawing lines={this.state.lines} />
+            </div>
         )
     }
 }
+
+function Drawing({ lines }) {
+  return (
+    <svg className="drawing">
+      {lines.map((line, index) => (
+        <DrawingLine key={index} line={line} />
+      ))}
+    </svg>
+  );
+}
+
+function DrawingLine({ line }) {
+  const pathData = "M " +
+    line
+      .map(p => {
+        return `${p.get('x')} ${p.get('y')}`;
+      })
+      .join(" L ");
+
+  return <path className="path" d={pathData} />;
+}
+
 class App extends Component {
   render() {
     return (
       <div className="App">
-        <Stage width={700} height={700}>
-          <Layer>
-              <MyRect />
-          </Layer>
-        </Stage>
+        <Canvas />
       </div>
     );
   }
