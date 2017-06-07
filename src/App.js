@@ -26,11 +26,12 @@ class CanvasComponent extends Component {
         this.ctx.lineWidth = 10;
         this.ctx.lineJoin = this.ctx.lineCap = 'round';
         this.ctx.strokeStyle = 'white';
-        this.ctx.moveTo(e.clientX, e.clientY);
+        this.ctx.moveTo(e.clientX - this.canvas.left, e.clientY - this.canvas.top);
     }
     handleMouseMove(e) {
+        
         if (this.state.isDrawing) {
-            this.ctx.lineTo(e.clientX, e.clientY);
+            this.ctx.lineTo(e.clientX - this.canvas.left, e.clientY - this.canvas.top);
             this.ctx.stroke();
         }
     }
@@ -41,6 +42,7 @@ class CanvasComponent extends Component {
     }
     getContext() {
         this.ctx = this.refs.canvas.getContext('2d');
+        this.canvas = this.refs.canvas.getBoundingClientRect();
     }
     render() {
         return (
