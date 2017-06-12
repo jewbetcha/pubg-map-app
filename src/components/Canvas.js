@@ -6,10 +6,10 @@ class Canvas extends Component {
     
         this.state = {
             isDrawing: false,
-            startX: 0,
-            startY: 0,
-            endX: 0,
-            endY: 0
+            startX: null,
+            startY: null,
+            endX: null,
+            endY: null
         }
 
         this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -21,10 +21,10 @@ class Canvas extends Component {
         this.makeLine(this.ctx);
         this.setState({
             isDrawing: false,
-            startX: 0,
-            startY: 0,
-            endX: 0,
-            endY: 0
+            startX: null,
+            startY: null,
+            endX: null,
+            endY: null
         });
     }
     handleMouseDown(e) {
@@ -49,10 +49,13 @@ class Canvas extends Component {
         }
     }
     makeLine(context) {
+        context.save();
         context.beginPath();
         context.moveTo(this.state.startX, this.state.startY);
         context.lineTo(this.state.endX, this.state.endY);
+        context.closePath();
         context.stroke();
+        context.restore();
     }
     clearCanvas() {
         this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
