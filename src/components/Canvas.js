@@ -68,8 +68,8 @@ class Canvas extends Component {
         context.translate(x, y);
         context.rotate(rad);
         context.moveTo(0,0);
-        context.lineTo(15,35);
-        context.lineTo(-15,35);
+        context.lineTo(15, 35);
+        context.lineTo(-15, 35);
         context.closePath();
         context.restore();
         context.fill();
