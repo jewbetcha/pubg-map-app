@@ -34,9 +34,7 @@ class Canvas extends Component {
             startX: e.clientX - this.canvas.left,
             startY: e.clientY - this.canvas.top
         });
-        this.ctx.lineWidth = 6;
         this.ctx.lineJoin = this.ctx.lineCap = 'square';
-        this.ctx.strokeStyle = 'white';
     }
     handleMouseMove(e) {
         if (this.state.isDrawing) {
@@ -51,11 +49,30 @@ class Canvas extends Component {
     makeLine(context) {
         context.save();
         context.beginPath();
+        context.lineWidth = 4;
+        context.strokeStyle = 'white';
+        context.fillStyle = 'white';
         context.moveTo(this.state.startX, this.state.startY);
         context.lineTo(this.state.endX, this.state.endY);
         context.closePath();
         context.stroke();
+        // Arrowhead
+        var radians = Math.atan((this.state.startY - this.state.endY)/(this.state.startX - this.state.endX));
+        radians+=((this.state.endX > this.state.startX) ? 90 : -90) * Math.PI/180;
+        this.drawArrow(context, this.state.endX, this.state.endY, radians);
+        //context.restore();
+    }
+    drawArrow(context, x, y, rad) {
+        context.save();
+        context.beginPath();
+        context.translate(x, y);
+        context.rotate(rad);
+        context.moveTo(0,0);
+        context.lineTo(15,35);
+        context.lineTo(-15,35);
+        context.closePath();
         context.restore();
+        context.fill();
     }
     clearCanvas() {
         this.ctx.clearRect(0,0, this.canvas.width, this.canvas.height)
